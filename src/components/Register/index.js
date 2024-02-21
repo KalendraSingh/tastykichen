@@ -1,10 +1,17 @@
 import {Component} from 'react'
-import Cookies from 'js-cookie'
-import {Redirect, Link} from 'react-router-dom'
+
+import {Link} from 'react-router-dom'
+
 import './index.css'
 
 class Login extends Component {
-  state = {username: '', password: '', showError: false, errorMsg: ''}
+  state = {
+    username: '',
+    email: '',
+    password: '',
+    showError: false,
+    errorMsg: '',
+  }
 
   getUsername = e => {
     this.setState({username: e.target.value})
@@ -14,11 +21,16 @@ class Login extends Component {
     this.setState({password: e.target.value})
   }
 
+  getEmail = e => {
+    this.setState({email: e.target.value})
+  }
+
   onSubmitForm = async e => {
     e.preventDefault()
-    const {username, password} = this.state
+    const {username, email, password} = this.state
     const userDetails = {
       username,
+      email,
       password,
     }
     console.log(userDetails)
@@ -30,28 +42,22 @@ class Login extends Component {
       body: JSON.stringify(userDetails),
     }
     const response = await fetch(
-      'https://users-7c43.onrender.com/login',
+      'https://users-7c43.onrender.com/users',
       options,
     )
     const data = await response.json()
     console.log(data)
     console.log(response)
     if (response.ok) {
-      console.log(data.jwt_token)
-      Cookies.set('jwt_token', data.jwt_token, {expires: 20})
       const {history} = this.props
-      history.replace('/')
+      history.replace('/login')
     } else {
-      this.setState({showError: true, errorMsg: data.error_msg})
+      this.setState({showError: true, errorMsg: data.error})
     }
   }
 
   render() {
-    const {username, password, errorMsg, showError} = this.state
-    const jwtToken = Cookies.get('jwt_token')
-    if (jwtToken !== undefined) {
-      return <Redirect to="/" />
-    }
+    const {username, password, errorMsg, showError, email} = this.state
 
     return (
       <div className="login-container">
@@ -73,7 +79,7 @@ class Login extends Component {
               className="app-logo"
             />
             <h1 className="kitchen-para">Tasty Kitchens</h1>
-            <h1 className="login-para">Login</h1>
+            <h1 className="login-para">Register</h1>
             <div className="input-container">
               <label htmlFor="username" className="label-element">
                 USERNAME
@@ -84,7 +90,20 @@ class Login extends Component {
                 className="input-element"
                 value={username}
                 onChange={this.getUsername}
-                placeholder="rahul"
+                placeholder="username"
+              />
+            </div>
+            <div className="input-container">
+              <label htmlFor="email" className="label-element">
+                EMAIL
+              </label>
+              <input
+                id="email"
+                type="text"
+                className="input-element"
+                value={email}
+                onChange={this.getEmail}
+                placeholder="email@gmail.com"
               />
             </div>
             <div className="input-container">
@@ -97,16 +116,16 @@ class Login extends Component {
                 className="input-element"
                 value={password}
                 onChange={this.getPassword}
-                placeholder="rahul@2021"
+                placeholder="password"
               />
             </div>
             {showError && <p className="login-error-msg">{errorMsg}</p>}
             <button type="submit" className="login-button">
-              Login
+              Register
             </button>
             <p className="account">
-              <Link to="/register" style={{textDecoration: 'none'}}>
-                Don't have account?
+              <Link to="/login" style={{textDecoration: 'none'}}>
+                Already have account?
               </Link>
             </p>
           </form>
